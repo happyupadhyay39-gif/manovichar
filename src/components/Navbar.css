@@ -1,0 +1,244 @@
+/* Custom CSS Variables for Warm & Calming Psychology Palette */
+:root {
+  --color-sage: #29483f;
+  --color-sage-hover: #1f3730;
+  --color-cream-bg: rgba(253, 251, 247, 0.92);
+  --color-warm-amber: #c87d55;
+  --color-text-dark: #2c3330;
+  --color-text-muted: #5a6561;
+  --color-border: rgba(41, 72, 63, 0.08);
+  --font-serif: "Georgia", "Times New Roman", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Base Navbar Styles */
+.navbar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background: var(--color-cream-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-scrolled {
+  box-shadow: 0 4px 20px rgba(41, 72, 63, 0.06);
+  background: rgba(253, 251, 247, 0.96);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.logo:hover {
+  opacity: 0.9;
+}
+
+.logo-mark {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-sage);
+  color: #fdfbf7;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(41, 72, 63, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-mark {
+  transform: rotate(-6deg) scale(1.03);
+}
+
+.logo-text {
+  color: var(--color-sage);
+  font-family: var(--font-serif);
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+/* Nav Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-links a {
+  position: relative;
+  color: var(--color-text-dark);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 4px 0;
+  transition: color 0.3s ease;
+}
+
+/* Subtle Animated Underline */
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--color-warm-amber);
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-links a:hover {
+  color: var(--color-sage);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* Actions & Button */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-button {
+  padding: 12px 24px;
+  background: var(--color-sage);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  box-shadow: 0 4px 12px rgba(41, 72, 63, 0.15);
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.nav-button:hover {
+  background: var(--color-sage-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(41, 72, 63, 0.22);
+}
+
+.mobile-cta {
+  display: none;
+}
+
+/* Hamburger Toggle Button */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.bar {
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-sage);
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hamburger Open Animation */
+.hamburger.open .bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open .bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .desktop-cta {
+    display: none;
+  }
+
+  .mobile-cta {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: #fdfbf7;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 100px 32px 40px 32px;
+    gap: 24px;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-links.active {
+    right: 0;
+  }
+
+  .nav-links a {
+    font-size: 18px;
+    width: 100%;
+  }
+
+  .nav-links a::after {
+    display: none;
+  }
+
+  .navbar-container {
+    padding: 16px 24px;
+  }
+  .logo-image {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+}
+}
