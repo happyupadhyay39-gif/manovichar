@@ -1,94 +1,24 @@
-import React, { useState, useEffect } from "react";
-import "./Navbar.css";
-
-function Navbar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Toggle mobile menu drawer
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen((prev) => !prev);
-  };
-
-  // Close mobile menu when a link is clicked
-  const handleLinkClick = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  // Add shadow/border depth on scroll
+import { useEffect, useState } from 'react'
+import Logo from './Logo'
+import Button from './Button'
+const links = [['Home','#home'],['About','#about'],['Services','#services'],['Therapist','#therapist'],['FAQ','#faq'],['Testimonials','#stories']]
+export default function Navbar() {
+  const [s, setS] = useState(false), [o, setO] = useState(false)
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <nav className={`navbar ${isScrolled ? "navbar-scrolled" : ""}`}>
-      <div className="navbar-container">
-        {/* Brand Logo */}
-        <a href="#" className="logo" onClick={handleLinkClick}>
-          <div className="logo-mark">
-            <span>M</span>
-          </div>
-          <span className="logo-text">Manovichar</span>
-        </a>
-
-        {/* Desktop Navigation Links */}
-        <div className={`nav-links ${isMobileMenuOpen ? "active" : ""}`}>
-          <a href="#about" onClick={handleLinkClick}>
-            About
-          </a>
-          <a href="#services" onClick={handleLinkClick}>
-            Services
-          </a>
-          <a href="#how-it-works" onClick={handleLinkClick}>
-            How It Works
-          </a>
-          <a href="#team" onClick={handleLinkClick}>
-            Our Team
-          </a>
-          <a href="#faq" onClick={handleLinkClick}>
-            FAQ
-          </a>
-
-          {/* CTA Mobile Version */}
-          <a
-            href="#contact"
-            className="nav-button mobile-cta"
-            onClick={handleLinkClick}
-          >
-            Book a Session
-          </a>
-        </div>
-
-        {/* CTA Desktop Version */}
-        <div className="nav-actions">
-          <a href="#contact" className="nav-button desktop-cta">
-            Book a Session
-          </a>
-
-          {/* Mobile Hamburger / Cross Toggle */}
-          <button
-            className={`hamburger ${isMobileMenuOpen ? "open" : ""}`}
-            onClick={toggleMobileMenu}
-            aria-label="Toggle Navigation Menu"
-            type="button"
-          >
-            <span className="bar"></span>
-            <span className="bar"></span>
-            <span className="bar"></span>
-          </button>
-        </div>
-      </div>
-    </nav>
-  );
+    const updateScroll = () => setS(window.scrollY > 40)
+    const closeOnEscape = event => { if (event.key === 'Escape') setO(false) }
+    updateScroll()
+    window.addEventListener('scroll', updateScroll, { passive: true })
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.removeEventListener('scroll', updateScroll)
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [])
+  return (<header className={'nav' + (s ? ' scrolled' : '') + (o ? ' open' : '')}>
+    <a href="#home" aria-label="Manovichar home"><Logo light={!s} /></a>
+    <nav id="primary-navigation" className="nav-links" aria-label="Primary navigation" onClick={() => setO(false)}>{links.map(([t, h]) => <a key={t} href={h}>{t}</a>)}<Button href="#book" className="nav-cta-m">Book a Session</Button></nav>
+    <Button href="#book" className="nav-cta">Book a Session</Button>
+    <button className="burger" aria-label={o ? 'Close menu' : 'Open menu'} aria-controls="primary-navigation" aria-expanded={o} onClick={() => setO(!o)}><i/><i/><i/></button>
+  </header>)
 }
-
-export default Navbar;
