@@ -16,7 +16,7 @@ export default function Navbar() {
     }
   }, [])
   return (<header className={'nav' + (s ? ' scrolled' : '') + (o ? ' open' : '')}>
-    <a href="#home" aria-label="Manovichar home"><Logo light={!s} /></a>
+    <a href="#home" aria-label="Manovichar home"><Logo /></a>
     <nav id="primary-navigation" className="nav-links" aria-label="Primary navigation" onClick={() => setO(false)}>{links.map(([t, h]) => <a key={t} href={h}>{t}</a>)}<Button href="#book" className="nav-cta-m">Book a Session</Button></nav>
     <Button href="#book" className="nav-cta">Book a Session</Button>
     <button className="burger" aria-label={o ? 'Close menu' : 'Open menu'} aria-controls="primary-navigation" aria-expanded={o} onClick={() => setO(!o)}><i/><i/><i/></button>

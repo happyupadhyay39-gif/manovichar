@@ -11,7 +11,8 @@ p+p{margin-top:1rem}a{color:inherit;text-decoration:none}img{max-width:100%;disp
 .btn:hover{background:#17476b}.btn.ghost{background:transparent;color:#fff;border-color:#fff9}.btn.ghost:hover{background:#ffffff26}
 .btn.line{background:none;color:var(--navy);border-width:0 0 1px;border-radius:0;padding:.3rem 0}.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 .row{display:flex;gap:1rem;flex-wrap:wrap}
-.logo{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--serif);font-size:1.4rem;letter-spacing:.22em;color:var(--navy)}.logo.light{color:#fff}
+.logo{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--serif);font-size:1.4rem;letter-spacing:.22em;color:var(--navy)}
+.logo-image{display:block;width:8rem;height:4.5rem;object-fit:contain}
 .nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:.9rem clamp(1rem,4vw,3rem);transition:.4s}
 .nav.scrolled{background:#f7f7f7d9;backdrop-filter:blur(12px);box-shadow:0 6px 24px #0f334f14}
 .nav-links{display:flex;gap:1.6rem;font-size:.92rem;margin-left:auto}.nav-links a:not(.btn){position:relative;padding:.2rem 0}
@@ -80,12 +81,9 @@ p{max-width:580px;font-size:1rem;line-height:1.6}
 .label{font-size:.75rem;letter-spacing:.13em;margin-bottom:.85rem}
 .wrap{width:min(1200px,calc(100% - 3rem))}
 .logo{transition:color .35s ease}
-.logo svg circle:first-child{transition:stroke .35s ease}
 .btn{padding:.75rem 1.4rem;font-size:.9rem}
 
 .nav{position:absolute;top:0;left:0;width:100%;z-index:1000;padding:1.1rem clamp(1.25rem,5vw,5rem);background:transparent;border-bottom:1px solid transparent;box-shadow:none;transition:background .35s ease,backdrop-filter .35s ease,box-shadow .35s ease,border-color .35s ease,padding .35s ease}
-.nav:not(.scrolled) .logo{color:var(--bg)}
-.nav:not(.scrolled) .logo svg circle:first-child{stroke:var(--bg)}
 .nav:not(.scrolled) .nav-links a:not(.btn){color:rgba(255,255,255,.94)}
 .nav.scrolled{position:fixed;padding:.65rem clamp(1.25rem,5vw,5rem);background:rgba(247,247,247,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(15,51,79,.08);box-shadow:0 8px 24px rgba(15,51,79,.07)}
 .nav-links{gap:clamp(.8rem,1.8vw,1.6rem);font-size:.86rem;letter-spacing:.02em}
