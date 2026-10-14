@@ -21,7 +21,7 @@ export default function Therapist() {
         <div className="thr-detail">
           <h3>Credentials</h3>
           <ul className="thr-credentials">
-            <li> M.Phil. in Psychology (Gold Medalist)</li>
+            <li> M.Phil.(Gold Medalist)</li>
             <li>Master’s in Clinical Psychology</li>
             <li>Ph.D. in Sociology</li>
             <li>PG Diploma in Guidance &amp; Counselling</li>
