@@ -15,7 +15,7 @@ export default function Therapist() {
         <p className="thr-eyebrow">Meet Your Therapist</p>
         <h2 className="thr-name" id="therapist-name">Dr. AR. Soni</h2>
         <p className="thr-role"> Counsultant Psychologist &amp; and Social Scientist</p>
-        <p className="thr-intro">Dr. Anuradha Soni is a psychologist and counselling professional with five years of experience in child and adolescent psychology. Her work includes counselling, psychotherapy, emotional intelligence, and behavioural transformation.</p>
+        <p className="thr-intro">Dr. Anuradha Soni is a Counsultant psychologist and counselling professional with five years of experience in child and adolescent psychology. Her work includes counselling, psychotherapy, emotional intelligence, and behavioural transformation.</p>
       </Reveal>
       <Reveal delay={120}>
         <div className="thr-detail">
