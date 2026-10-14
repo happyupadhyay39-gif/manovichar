@@ -15,30 +15,46 @@ export default function Therapist() {
         <p className="thr-eyebrow">Meet Your Therapist</p>
         <h2 className="thr-name" id="therapist-name">Dr. Anuradha Soni</h2>
         <p className="thr-role">Psychologist &amp; Counselling Professional</p>
-        <p className="thr-intro">With an M.A. and M.Phil. in Psychology and a Master’s in Clinical Psychology, Dr. Soni brings a strong academic foundation to her work. She supports emotional wellbeing through counselling and psychotherapy, with expertise in emotional intelligence and behavioural transformation.</p>
+        <p className="thr-intro">Dr. Anuradha Soni is a psychologist and counselling professional with five years of experience in child and adolescent psychology. Her work includes counselling, psychotherapy, emotional intelligence, and behavioural transformation.</p>
       </Reveal>
       <Reveal delay={120}>
         <div className="thr-detail">
           <h3>Credentials</h3>
           <ul className="thr-credentials">
-            <li>M.A. &amp; M.Phil. in Psychology</li>
-            <li>Gold Medalist</li>
+            <li> M.Phil. in Psychology (Gold Medalist)</li>
             <li>Master’s in Clinical Psychology</li>
+            <li>Ph.D. in Sociology</li>
             <li>PG Diploma in Guidance &amp; Counselling</li>
+            <li>Certified Emotional Intelligence Expert; trainer and coach in Behavioural Transformation</li>
           </ul>
         </div>
         <div className="thr-detail">
-          <h3>Therapeutic Expertise</h3>
+          <h3>Therapeutic Approaches &amp; Areas</h3>
           <ul className="thr-tags" aria-label="Therapeutic approaches">
             <li>CBT</li>
-            <li>ACT</li>
-            <li>SFBT</li>
             <li>REBT</li>
+            <li>SFBT</li>
+            <li>ACT</li>
+            <li>Counselling Skills &amp; Process</li>
+            <li>Hypnotherapy</li>
             <li>Relationship Counselling</li>
+            <li>Geriatric Counselling</li>
             <li>School Counselling</li>
+            <li>Transpersonal Psychology</li>
           </ul>
         </div>
-        <p className="thr-credibility">Specialized in emotional wellbeing, counselling, psychotherapy, and behavioural transformation.</p>
+        <div className="thr-detail">
+          <h3>Experience, Research &amp; Publications</h3>
+          <p className="thr-credibility">She currently works in child psychology and conducts research on genetic issues. She also runs social support groups for child-related and relationship concerns, has published research papers, and authored <em>Educated Working Women with Role Conflict: A Socio-Psychological Perspective</em>.</p>
+        </div>
+        <div className="thr-detail">
+          <h3>Additional Certifications</h3>
+          <ul className="thr-tags" aria-label="Additional certifications">
+            <li>Certified Reiki Healing Expert</li>
+            <li>Certified Lal Kitab Astrology Expert</li>
+            <li>Certified Vedic Astrology Expert</li>
+          </ul>
+        </div>
         <Button href="#book" className="thr-cta">Book a Consultation</Button>
       </Reveal>
     </div>
