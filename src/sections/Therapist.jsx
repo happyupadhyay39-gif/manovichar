@@ -13,16 +13,16 @@ export default function Therapist() {
     <div className="thr-content">
       <Reveal>
         <p className="thr-eyebrow">Meet Your Therapist</p>
-        <h2 className="thr-name" id="therapist-name">Dr. Anuradha Soni</h2>
-        <p className="thr-role">Psychologist &amp; Counselling Professional</p>
+        <h2 className="thr-name" id="therapist-name">Dr. AR. Soni</h2>
+        <p className="thr-role"> Counsultant Psychologist &amp; and Social Scientist</p>
         <p className="thr-intro">Dr. Anuradha Soni is a psychologist and counselling professional with five years of experience in child and adolescent psychology. Her work includes counselling, psychotherapy, emotional intelligence, and behavioural transformation.</p>
       </Reveal>
       <Reveal delay={120}>
         <div className="thr-detail">
           <h3>Credentials</h3>
           <ul className="thr-credentials">
-            <li> M.Phil.(Gold Medalist)</li>
-            <li>Master’s in Clinical Psychology</li>
+            <li> Master’s in Clinical Psychology</li>
+            <li>M.Phil.(Gold Medalist)</li>
             <li>Ph.D. in Sociology</li>
             <li>PG Diploma in Guidance &amp; Counselling</li>
             <li>Certified Emotional Intelligence Expert; trainer and coach in Behavioural Transformation</li>
@@ -40,19 +40,21 @@ export default function Therapist() {
             <li>Relationship Counselling</li>
             <li>Geriatric Counselling</li>
             <li>School Counselling</li>
-            <li>Transpersonal Psychology</li>
+            
           </ul>
         </div>
         <div className="thr-detail">
           <h3>Experience, Research &amp; Publications</h3>
-          <p className="thr-credibility">She currently works in child psychology and conducts research on genetic issues. She also runs social support groups for child-related and relationship concerns, has published research papers, and authored <em>Educated Working Women with Role Conflict: A Socio-Psychological Perspective</em>.</p>
+          <p className="thr-credibility">She currently works in child and geriatric psychology and conducts research on genetic issues. She also runs social support groups for child-related and relationship concerns, has published research papers, and authored <em>Educated Working Women with Role Conflict: A Socio-Psychological Perspective</em>.</p>
         </div>
         <div className="thr-detail">
           <h3>Additional Certifications</h3>
           <ul className="thr-tags" aria-label="Additional certifications">
+            <li>Expertise in Trans-personal Psychology</li>
             <li>Certified Reiki Healing Expert</li>
             <li>Certified Lal Kitab Astrology Expert</li>
             <li>Certified Vedic Astrology Expert</li>
+
           </ul>
         </div>
         <Button href="#book" className="thr-cta">Book a Consultation</Button>
