@@ -7,8 +7,8 @@ export default function Hero() {
       <div className="hero-copy">
         <Sketch kind="wave" className="hero-line" />
         <p className="label">A space to feel understood</p>
-        <h1>A calmer mind begins with a conversation.</h1>
-        <p>You don't have to understand everything you're feeling before you ask for support.</p>
+        <h1>A Foundation Cell of Social Welfare</h1>
+        <p>A platform for socio-psychological well-being through guidance,counselling and therapy.</p>
         <div className="row"><Button>Book a Session</Button><Button href="#about" variant="ghost">Explore Manovichar</Button></div>
       </div></div></section>)
 }
