@@ -6,7 +6,7 @@ export default function Navbar() {
   const [s, setS] = useState(false), [o, setO] = useState(false)
   const path = window.location.pathname.replace(/\/+$/, '') || '/'
   const isLanding = path === '/' || path === '/index.html'
-  const isDarkPage = path === '/blogs' || path === '/admin/blogs'
+  const isDarkPage = path === '/blogs' || path === '/admin' || path === '/admin/blogs'
   const links = [
     ['Home', isLanding ? '#home' : '/#home'],
     ['About', isLanding ? '#about' : '/#about'],

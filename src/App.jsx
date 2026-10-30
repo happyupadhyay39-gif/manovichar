@@ -17,7 +17,7 @@ export default function App() {
     return <><Navbar /><BlogsPage /></>
   }
 
-  if (path === '/admin/blogs') {
+  if (path === '/admin' || path === '/admin/blogs') {
     return <><Navbar /><AdminBlogsPage /></>
   }
 
