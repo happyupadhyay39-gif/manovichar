@@ -6,6 +6,7 @@ export default function AdminBlogsPage() {
   const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
   const [adminToken, setAdminToken] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [showWakeUpMessage, setShowWakeUpMessage] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [blogs, setBlogs] = useState([])
   const [blogsLoading, setBlogsLoading] = useState(true)
@@ -42,7 +43,11 @@ export default function AdminBlogsPage() {
   async function handleSubmit(event) {
     event.preventDefault()
     setSubmitting(true)
+    setShowWakeUpMessage(false)
     setFeedback(null)
+    const wakeUpTimer = window.setTimeout(() => {
+      setShowWakeUpMessage(true)
+    }, 2500)
 
     const form = event.currentTarget
     const values = new FormData(form)
@@ -61,7 +66,9 @@ export default function AdminBlogsPage() {
     } catch (error) {
       setFeedback({ type: 'error', message: error.message || 'Unable to publish the blog post. Please try again.' })
     } finally {
+      window.clearTimeout(wakeUpTimer)
       setSubmitting(false)
+      setShowWakeUpMessage(false)
     }
   }
 
@@ -140,7 +147,9 @@ export default function AdminBlogsPage() {
           )}
 
           <button type="submit" disabled={submitting}>
-            {submitting ? 'Publishing…' : 'Publish blog post'}
+            {submitting
+              ? showWakeUpMessage ? 'Waking up server and publishing…' : 'Publishing…'
+              : 'Publish blog post'}
           </button>
         </form>
 

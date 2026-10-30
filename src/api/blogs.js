@@ -1,7 +1,7 @@
 const API_BASE_URL = 'https://manovichar-backend.onrender.com'
 const BLOGS_ENDPOINT = `${API_BASE_URL}/api/blogs`
 const ADMIN_BLOGS_ENDPOINT = `${API_BASE_URL}/api/admin/blogs`
-const BLOGS_REQUEST_TIMEOUT = 60_000
+const REQUEST_TIMEOUT = 60_000
 
 async function getErrorMessage(response) {
   const body = await response.text()
@@ -36,9 +36,10 @@ async function requestJson(url, options) {
   }
 }
 
-export function fetchBlogs(signal) {
+function requestJsonWithTimeout(url, options, timeoutMessage) {
   const controller = new AbortController()
   let timedOut = false
+  const { signal, ...requestOptions } = options
   const abortRequest = () => controller.abort(signal.reason)
 
   if (signal?.aborted) {
@@ -50,12 +51,17 @@ export function fetchBlogs(signal) {
   const timeoutId = setTimeout(() => {
     timedOut = true
     controller.abort()
-  }, BLOGS_REQUEST_TIMEOUT)
+  }, REQUEST_TIMEOUT)
 
-  return requestJson(BLOGS_ENDPOINT, { signal: controller.signal })
+  return requestJson(url, { ...requestOptions, signal: controller.signal })
     .catch(error => {
       if (timedOut) {
-        throw new Error('The stories service is taking longer than expected.')
+        throw new Error(timeoutMessage)
+      }
+      if (error instanceof TypeError) {
+        throw new Error(
+          'Could not connect to the blog server. It may still be waking up, or the connection may be blocked by server settings. Please retry shortly.'
+        )
       }
       throw error
     })
@@ -65,27 +71,44 @@ export function fetchBlogs(signal) {
     })
 }
 
+export function fetchBlogs(signal) {
+  return requestJsonWithTimeout(
+    BLOGS_ENDPOINT,
+    { signal },
+    'The stories service is taking longer than expected. Please retry.'
+  )
+}
+
 export function createBlog(blog, adminToken = '') {
   const headers = {
     'Content-Type': 'application/json',
   }
-  if (adminToken) headers.MANOVICHAR_ADMIN_TOKEN = adminToken
+  const token = adminToken.trim()
+  if (token) headers.MANOVICHAR_ADMIN_TOKEN = token
 
-  return requestJson(ADMIN_BLOGS_ENDPOINT, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(blog),
-  })
+  return requestJsonWithTimeout(
+    ADMIN_BLOGS_ENDPOINT,
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(blog),
+    },
+    'Publishing is taking longer than expected. Please retry.'
+  )
 }
 
 export function deleteBlog(blogId, adminToken) {
   const token = adminToken?.trim()
   if (!token) throw new Error('An admin token is required to delete a blog post.')
 
-  return requestJson(`${ADMIN_BLOGS_ENDPOINT}/${encodeURIComponent(blogId)}`, {
-    method: 'DELETE',
-    headers: {
-      MANOVICHAR_ADMIN_TOKEN: token,
+  return requestJsonWithTimeout(
+    `${ADMIN_BLOGS_ENDPOINT}/${encodeURIComponent(blogId)}`,
+    {
+      method: 'DELETE',
+      headers: {
+        MANOVICHAR_ADMIN_TOKEN: token,
+      },
     },
-  })
+    'Deleting is taking longer than expected. Please retry.'
+  )
 }
