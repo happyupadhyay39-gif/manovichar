@@ -1,6 +1,7 @@
 const API_BASE_URL = 'https://manovichar-backend.onrender.com'
 const BLOGS_ENDPOINT = `${API_BASE_URL}/api/blogs`
 const ADMIN_BLOGS_ENDPOINT = `${API_BASE_URL}/api/admin/blogs`
+const BLOGS_REQUEST_TIMEOUT = 60_000
 
 async function getErrorMessage(response) {
   const body = await response.text()
@@ -36,7 +37,32 @@ async function requestJson(url, options) {
 }
 
 export function fetchBlogs(signal) {
-  return requestJson(BLOGS_ENDPOINT, { signal })
+  const controller = new AbortController()
+  let timedOut = false
+  const abortRequest = () => controller.abort(signal.reason)
+
+  if (signal?.aborted) {
+    abortRequest()
+  } else {
+    signal?.addEventListener('abort', abortRequest, { once: true })
+  }
+
+  const timeoutId = setTimeout(() => {
+    timedOut = true
+    controller.abort()
+  }, BLOGS_REQUEST_TIMEOUT)
+
+  return requestJson(BLOGS_ENDPOINT, { signal: controller.signal })
+    .catch(error => {
+      if (timedOut) {
+        throw new Error('The stories service is taking longer than expected.')
+      }
+      throw error
+    })
+    .finally(() => {
+      clearTimeout(timeoutId)
+      signal?.removeEventListener('abort', abortRequest)
+    })
 }
 
 export function createBlog(blog, adminToken = '') {

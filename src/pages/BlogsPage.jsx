@@ -31,12 +31,21 @@ export default function BlogsPage() {
   const [blogs, setBlogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [retryCount, setRetryCount] = useState(0)
+  const [showWakeUpMessage, setShowWakeUpMessage] = useState(false)
   const [selectedBlog, setSelectedBlog] = useState(null)
   const closeButtonRef = useRef(null)
   const triggerRef = useRef(null)
 
   useEffect(() => {
     const controller = new AbortController()
+    const wakeUpTimer = window.setTimeout(() => {
+      setShowWakeUpMessage(true)
+    }, 2500)
+
+    setLoading(true)
+    setError('')
+    setShowWakeUpMessage(false)
 
     fetchBlogs(controller.signal)
       .then(data => {
@@ -47,16 +56,23 @@ export default function BlogsPage() {
         setBlogs(records.filter(blog => blog && typeof blog === 'object'))
       })
       .catch(reason => {
-        if (reason.name !== 'AbortError') {
-          setError(reason.message || 'Unable to load blogs. Please try again.')
+        if (reason?.name !== 'AbortError') {
+          setError('unavailable')
         }
       })
       .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
+        window.clearTimeout(wakeUpTimer)
+        if (!controller.signal.aborted) {
+          setLoading(false)
+          setShowWakeUpMessage(false)
+        }
       })
 
-    return () => controller.abort()
-  }, [])
+    return () => {
+      window.clearTimeout(wakeUpTimer)
+      controller.abort()
+    }
+  }, [retryCount])
 
   useEffect(() => {
     if (!selectedBlog) return undefined
@@ -88,8 +104,26 @@ export default function BlogsPage() {
         <p className="blog-intro">Reflections and practical guidance for your journey toward emotional wellbeing.</p>
       </header>
 
-      {loading && <p className="blog-feedback" role="status">Loading stories…</p>}
-      {!loading && error && <p className="blog-feedback blog-feedback--error" role="alert">{error}</p>}
+      {loading && (
+        <p className="blog-feedback" role="status">
+          {showWakeUpMessage
+            ? 'Our stories are waking up. This can take up to 30 seconds on the first visit.'
+            : 'Loading stories…'}
+        </p>
+      )}
+      {!loading && error && (
+        <section className="blog-feedback blog-feedback--error" role="alert" aria-live="assertive">
+          <h2 className="blog-feedback__title">Stories are temporarily unavailable.</h2>
+          <p>Unable to load stories right now. Please check back shortly or refresh.</p>
+          <button
+            className="blog-retry"
+            type="button"
+            onClick={() => setRetryCount(count => count + 1)}
+          >
+            Retry
+          </button>
+        </section>
+      )}
       {!loading && !error && blogs.length === 0 && (
         <p className="blog-feedback">There are no stories to read just yet. Please check back soon.</p>
       )}

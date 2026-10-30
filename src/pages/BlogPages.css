@@ -82,7 +82,41 @@
 }
 
 .blog-feedback--error {
+  padding: 2rem;
+  border: 1px solid rgba(201, 162, 77, .24);
+  border-radius: 1rem;
+  background: #202523;
+  color: #d3d5ce;
+}
+
+.blog-feedback__title {
+  margin: 0 0 .6rem;
   color: #f0a49a;
+  font-size: 1.15rem;
+}
+
+.blog-feedback--error p {
+  margin: 0;
+}
+
+.blog-retry {
+  margin-top: 1.25rem;
+  padding: .7rem 1.4rem;
+  border: 1px solid rgba(201, 162, 77, .55);
+  border-radius: 999px;
+  background: transparent;
+  color: #e8c879;
+  cursor: pointer;
+  font: inherit;
+}
+
+.blog-retry:hover {
+  background: rgba(201, 162, 77, .12);
+}
+
+.blog-retry:focus-visible {
+  outline: 2px solid #e8c879;
+  outline-offset: 3px;
 }
 
 .blog-grid {
