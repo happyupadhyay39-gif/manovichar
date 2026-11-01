@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://manovichar-backend.onrender.com'
+const API_BASE_URL = 'https://manovichar-backend-1.onrender.com'
 const BLOGS_ENDPOINT = `${API_BASE_URL}/api/blogs`
 const ADMIN_BLOGS_ENDPOINT = `${API_BASE_URL}/api/admin/blogs`
 const REQUEST_TIMEOUT = 60_000
