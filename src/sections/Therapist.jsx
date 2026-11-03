@@ -45,7 +45,7 @@ export default function Therapist() {
         </div>
         <div className="thr-detail">
           <h3>Experience, Research &amp; Publications</h3>
-          <p className="thr-credibility">She currently works in child and geriatric psychology and doing research on genetic issues. She also runs social support groups for child-related and relationship concerns, has published research papers, and authored <em>Educated Working Women with Role Conflict: A Socio-Psychological Perspective</em>.</p>
+          <p className="thr-credibility">She currently works in child and geriatric psychology and doing research on geriatric issues. She also runs social support groups for child-related and relationship concerns, has published research papers, and authored <em>Educated Working Women with Role Conflict: A Socio-Psychological Perspective</em>.</p>
         </div>
         <div className="thr-detail">
           <h3>Additional Certifications</h3>
