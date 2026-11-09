@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './sections/Hero'
 import AboutUs from './sections/AboutUs'
@@ -8,7 +9,8 @@ import Testimonials from './sections/Testimonials'
 import BookSession from './sections/BookSession'
 import Footer from './sections/Footer'
 import BlogsPage from './pages/BlogsPage'
-import AdminBlogsPage from './pages/AdminBlogsPage'
+
+const AdminBlogsPage = lazy(() => import('./pages/AdminBlogsPage'))
 
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/'
@@ -18,7 +20,14 @@ export default function App() {
   }
 
   if (path === '/admin' || path === '/admin/blogs') {
-    return <><Navbar /><AdminBlogsPage /></>
+    return (
+      <>
+        <Navbar />
+        <Suspense fallback={<p className="route-loading" role="status">Loading editor…</p>}>
+          <AdminBlogsPage />
+        </Suspense>
+      </>
+    )
   }
 
   return (<><Navbar /><main><Hero /><AboutUs /><Services /><Therapist /><FAQ /><Testimonials /><BookSession /></main><Footer /></>)

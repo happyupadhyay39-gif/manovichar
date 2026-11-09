@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://manovichar-backend-1.onrender.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://manovichar-backend-1.onrender.com'
 const BLOGS_ENDPOINT = `${API_BASE_URL}/api/blogs`
 const ADMIN_BLOGS_ENDPOINT = `${API_BASE_URL}/api/admin/blogs`
 const REQUEST_TIMEOUT = 60_000
@@ -95,6 +95,62 @@ export function createBlog(blog, adminToken = '') {
     },
     'Publishing is taking longer than expected. Please retry.'
   )
+}
+
+export function uploadBlogImage(file, adminToken = '', onProgress = () => {}) {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `${ADMIN_BLOGS_ENDPOINT}/images`)
+    xhr.timeout = REQUEST_TIMEOUT
+
+    const token = adminToken.trim()
+    if (token) xhr.setRequestHeader('MANOVICHAR_ADMIN_TOKEN', token)
+
+    xhr.upload.addEventListener('progress', event => {
+      if (event.lengthComputable) {
+        onProgress(Math.round((event.loaded / event.total) * 100))
+      }
+    })
+
+    xhr.addEventListener('load', () => {
+      let payload
+      try {
+        payload = JSON.parse(xhr.responseText)
+      } catch {
+        reject(new Error('The image service returned an invalid response.'))
+        return
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        const message = payload?.detail ?? payload?.message
+        reject(new Error(typeof message === 'string' ? message : `Image upload failed (${xhr.status}).`))
+        return
+      }
+
+      const imageUrl = payload?.image_url ?? payload?.url
+      try {
+        if (typeof imageUrl !== 'string' || new URL(imageUrl).protocol !== 'https:') {
+          throw new Error()
+        }
+      } catch {
+        reject(new Error('The image service did not return a valid secure image URL.'))
+        return
+      }
+
+      resolve(imageUrl)
+    })
+
+    xhr.addEventListener('error', () => {
+      reject(new Error('Could not connect to the image service. Please retry.'))
+    })
+    xhr.addEventListener('timeout', () => {
+      reject(new Error('Image upload is taking longer than expected. Please retry.'))
+    })
+    xhr.send(formData)
+  })
 }
 
 export function deleteBlog(blogId, adminToken) {

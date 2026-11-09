@@ -1,9 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { fetchBlogs } from '../api/blogs'
 import './BlogPages.css'
 
+const BLOG_CONTENT_TAGS = [
+  'a', 'blockquote', 'br', 'em', 'h1', 'h2', 'h3', 'li', 'ol', 'p', 'strong', 'u', 'ul',
+]
+const BLOG_CONTENT_ATTRIBUTES = ['href', 'rel', 'style', 'target']
+
 function getText(value) {
   return typeof value === 'string' ? value : ''
+}
+
+function sanitizeBlogContent(content) {
+  return DOMPurify.sanitize(content, {
+    ALLOWED_TAGS: BLOG_CONTENT_TAGS,
+    ALLOWED_ATTR: BLOG_CONTENT_ATTRIBUTES,
+    ALLOW_DATA_ATTR: false,
+  })
+}
+
+function getBlogExcerpt(content) {
+  if (!/<\/?[a-z][^>]*>/i.test(content)) return content
+  const cleanContent = sanitizeBlogContent(content)
+  const excerpt = new DOMParser().parseFromString(cleanContent, 'text/html').body.textContent || ''
+  return excerpt.replace(/\s+/g, ' ').trim()
 }
 
 function getPublishedDate(blog) {
@@ -134,7 +155,7 @@ export default function BlogsPage() {
             const title = getText(blog.title) || 'Untitled'
             const image = getBlogImage(blog)
             const author = getText(blog.author)
-            const content = getText(blog.content)
+            const content = getBlogExcerpt(getText(blog.content))
             const date = getPublishedDate(blog)
 
             return (
@@ -207,7 +228,9 @@ export default function BlogsPage() {
                 )}
               </div>
               <div className="blog-modal__content">
-                {getText(selectedBlog.content)}
+                {/<\/?[a-z][^>]*>/i.test(getText(selectedBlog.content))
+                  ? <div dangerouslySetInnerHTML={{ __html: sanitizeBlogContent(getText(selectedBlog.content)) }} />
+                  : getText(selectedBlog.content)}
               </div>
             </article>
           </section>
