@@ -331,6 +331,14 @@
   color: #65758b;
 }
 
+.blog-modal__content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  border-radius: .7rem;
+}
+
 .admin-blogs-page {
   display: grid;
   place-items: start center;
@@ -659,6 +667,14 @@
   color: #2457a6;
   text-decoration: underline;
   text-underline-offset: .15em;
+}
+
+.rich-text-editor__surface img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto;
+  border-radius: .5rem;
 }
 
 .rich-text-editor__error {

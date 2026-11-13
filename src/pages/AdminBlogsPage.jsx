@@ -20,6 +20,7 @@ export default function AdminBlogsPage() {
   const [selectedImage, setSelectedImage] = useState(null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [contentImageUploading, setContentImageUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadFeedback, setUploadFeedback] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -64,6 +65,10 @@ export default function AdminBlogsPage() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+    if (contentImageUploading) {
+      setFeedback({ type: 'error', message: 'Please wait for the article image to finish uploading.' })
+      return
+    }
     if (!editor || editor.isEmpty || !content.trim()) {
       setFeedback({ type: 'error', message: 'Please write some content before publishing.' })
       return
@@ -144,6 +149,26 @@ export default function AdminBlogsPage() {
       setUploadFeedback({ type: 'error', message: error.message || 'Unable to upload the image. Please try again.' })
     } finally {
       setUploading(false)
+    }
+  }
+
+  async function handleContentImageUpload(file) {
+    const extension = file.name.split('.').pop()?.toLowerCase()
+    if (!extension || !IMAGE_TYPES[extension] || (file.type && IMAGE_TYPES[extension] !== file.type)) {
+      throw new Error('Choose a JPG, JPEG, PNG, or WebP image.')
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      throw new Error('Choose an image smaller than 10 MB.')
+    }
+    if (!isLocalHost && !adminToken.trim()) {
+      throw new Error('Enter the admin token before uploading an image.')
+    }
+
+    setContentImageUploading(true)
+    try {
+      return await uploadBlogImage(file, isLocalHost ? '' : adminToken)
+    } finally {
+      setContentImageUploading(false)
     }
   }
 
@@ -305,7 +330,11 @@ export default function AdminBlogsPage() {
 
           <div className="admin-blog-field">
             <span>Content</span>
-            <RichTextEditor onEditorReady={setEditor} onContentChange={setContent} />
+            <RichTextEditor
+              onEditorReady={setEditor}
+              onContentChange={setContent}
+              onImageUpload={handleContentImageUpload}
+            />
             <span className="admin-blog-hint">Format your article using the toolbar above.</span>
           </div>
 
@@ -315,7 +344,7 @@ export default function AdminBlogsPage() {
             </p>
           )}
 
-          <button type="submit" disabled={submitting || uploading}>
+          <button type="submit" disabled={submitting || uploading || contentImageUploading}>
             {submitting
               ? uploading
                 ? `Uploading image… ${uploadProgress}%`
