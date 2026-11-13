@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './sections/Hero'
 import AboutUs from './sections/AboutUs'
+import Recognition from './sections/Recognition'
 import Services from './sections/Services'
 import Therapist from './sections/Therapist'
 import FAQ from './sections/FAQ'
@@ -30,5 +31,5 @@ export default function App() {
     )
   }
 
-  return (<><Navbar /><main><Hero /><AboutUs /><Services /><Therapist /><FAQ /><Testimonials /><BookSession /></main><Footer /></>)
+  return (<><Navbar /><main><Hero /><AboutUs /><Recognition /><Services /><Therapist /><FAQ /><Testimonials /><BookSession /></main><Footer /></>)
 }
