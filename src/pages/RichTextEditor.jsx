@@ -2,8 +2,9 @@ import { useRef, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
-import Image from '@tiptap/extension-image'
-import { Selection } from '@tiptap/pm/state'
+import { NodeSelection, Selection } from '@tiptap/pm/state'
+import BlogImage from './BlogImage'
+import BlogImageEditor from './BlogImageEditor'
 
 function ToolbarButton({ label, pressed, disabled, onClick, children }) {
   return (
@@ -38,12 +39,32 @@ function normalizeLink(value) {
   }
 }
 
-export default function RichTextEditor({ onEditorReady, onContentChange, onImageUpload }) {
+function getImageDimensions(file) {
+  const previewUrl = URL.createObjectURL(file)
+  return new Promise((resolve, reject) => {
+    const image = new window.Image()
+    image.onload = () => {
+      URL.revokeObjectURL(previewUrl)
+      resolve({ width: image.naturalWidth, height: image.naturalHeight })
+    }
+    image.onerror = () => {
+      URL.revokeObjectURL(previewUrl)
+      reject(new Error('The selected file could not be read as an image.'))
+    }
+    image.src = previewUrl
+  })
+}
+
+export default function RichTextEditor({ onEditorReady, onImageUpload, initialContent = '' }) {
   const [linkError, setLinkError] = useState('')
   const [imageError, setImageError] = useState('')
   const [imageUploading, setImageUploading] = useState(false)
+  const [imageSelected, setImageSelected] = useState(false)
+  const [imageDraft, setImageDraft] = useState(null)
   const imageInputRef = useRef(null)
   const imageSelectionRef = useRef(null)
+  const imageEditPositionRef = useRef(null)
+  const editorInstanceRef = useRef(null)
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -55,18 +76,32 @@ export default function RichTextEditor({ onEditorReady, onContentChange, onImage
         },
       }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Image,
+      BlogImage,
     ],
-    content: '',
+    content: initialContent,
     editorProps: {
       attributes: {
         'aria-label': 'Blog post content',
         class: 'rich-text-editor__surface',
       },
+      handleClickOn(view, _position, node, nodePosition) {
+        if (node.type.name !== 'image') return false
+        view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, nodePosition)))
+        return true
+      },
     },
-    onCreate: ({ editor: currentEditor }) => onEditorReady(currentEditor),
-    onDestroy: () => onEditorReady(null),
-    onUpdate: ({ editor: currentEditor }) => onContentChange(currentEditor.getHTML()),
+    onCreate: ({ editor: currentEditor }) => {
+      editorInstanceRef.current = currentEditor
+      onEditorReady(currentEditor)
+    },
+    onDestroy: () => {
+      const currentEditor = editorInstanceRef.current
+      editorInstanceRef.current = null
+      onEditorReady(null, currentEditor)
+    },
+    onSelectionUpdate: ({ editor: currentEditor }) => {
+      setImageSelected(currentEditor.state.selection.node?.type.name === 'image')
+    },
     immediatelyRender: false,
   })
 
@@ -91,13 +126,14 @@ export default function RichTextEditor({ onEditorReady, onContentChange, onImage
     setImageError('')
     setImageUploading(true)
     try {
+      const { width, height } = await getImageDimensions(file)
       const src = await onImageUpload(file)
       const selection = bookmark.resolve(editor.state.doc)
       editor.off('transaction', mapBookmark)
       const inserted = editor.chain()
         .focus()
         .setTextSelection(selection.head)
-        .setImage({ src, alt: file.name })
+        .setImage({ src, alt: file.name, width, height })
         .run()
       if (inserted && editor.isActive('image')) {
         const { state, view } = editor
@@ -122,6 +158,48 @@ export default function RichTextEditor({ onEditorReady, onContentChange, onImage
     }
     imageSelectionRef.current = editor.state.selection.getBookmark()
     imageInputRef.current?.click()
+  }
+
+  function editSelectedImage() {
+    const selection = editor.state.selection
+    const imageNode = selection.node
+    if (imageNode?.type.name !== 'image') return
+
+    const dom = editor.view.nodeDOM(selection.from)
+    const imageElement = dom instanceof HTMLElement ? dom.querySelector('img') : null
+    imageEditPositionRef.current = selection.from
+    setImageDraft({
+      src: imageNode.attrs.src,
+      alt: imageNode.attrs.alt,
+      width: imageNode.attrs.width,
+      height: imageNode.attrs.height,
+      naturalWidth: imageElement?.naturalWidth,
+      naturalHeight: imageElement?.naturalHeight,
+      layout: imageNode.attrs.layout,
+      crop: imageNode.attrs.crop,
+      zoom: imageNode.attrs.zoom,
+      positionX: imageNode.attrs.positionX,
+      positionY: imageNode.attrs.positionY,
+    })
+  }
+
+  function applyImageChanges(attributes) {
+    const imagePosition = imageEditPositionRef.current
+    if (imagePosition === null) return
+
+    editor.chain()
+      .focus()
+      .setNodeSelection(imagePosition)
+      .updateAttributes('image', attributes)
+      .run()
+    imageEditPositionRef.current = null
+    setImageDraft(null)
+  }
+
+  function cancelImageChanges() {
+    imageEditPositionRef.current = null
+    setImageDraft(null)
+    editor.commands.focus()
   }
 
   function setLink() {
@@ -222,6 +300,11 @@ export default function RichTextEditor({ onEditorReady, onContentChange, onImage
             <path d="m3.5 14 4.1-3.8 2.8 2.5 2.1-1.8 3.9 3.5" />
           </svg>
         </ToolbarButton>
+        {imageSelected && (
+          <ToolbarButton label="Edit selected image" onClick={editSelectedImage}>
+            <span aria-hidden="true">↗</span>
+          </ToolbarButton>
+        )}
         <ToolbarButton label="Undo" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()}>
           <span aria-hidden="true">↶</span>
         </ToolbarButton>
@@ -241,6 +324,13 @@ export default function RichTextEditor({ onEditorReady, onContentChange, onImage
       {linkError && <p className="rich-text-editor__error" role="alert">{linkError}</p>}
       {imageError && <p className="rich-text-editor__error" role="alert">{imageError}</p>}
       {imageUploading && <p className="rich-text-editor__error" role="status">Uploading image…</p>}
+      {imageDraft && (
+        <BlogImageEditor
+          image={imageDraft}
+          onApply={applyImageChanges}
+          onCancel={cancelImageChanges}
+        />
+      )}
     </div>
   )
 }

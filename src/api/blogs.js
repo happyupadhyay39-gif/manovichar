@@ -97,6 +97,24 @@ export function createBlog(blog, adminToken = '') {
   )
 }
 
+export function updateBlog(blogId, blog, adminToken = '') {
+  const headers = {
+    'Content-Type': 'application/json',
+  }
+  const token = adminToken.trim()
+  if (token) headers.MANOVICHAR_ADMIN_TOKEN = token
+
+  return requestJsonWithTimeout(
+    `${ADMIN_BLOGS_ENDPOINT}/${encodeURIComponent(blogId)}`,
+    {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(blog),
+    },
+    'Saving changes is taking longer than expected. Please retry.'
+  )
+}
+
 export function uploadBlogImage(file, adminToken = '', onProgress = () => {}) {
   return new Promise((resolve, reject) => {
     const formData = new FormData()

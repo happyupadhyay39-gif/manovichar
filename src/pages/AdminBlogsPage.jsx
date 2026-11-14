@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createBlog, deleteBlog, fetchBlogs, uploadBlogImage } from '../api/blogs'
+import { createBlog, deleteBlog, fetchBlogs, updateBlog, uploadBlogImage } from '../api/blogs'
 import RichTextEditor from './RichTextEditor'
 import './BlogPages.css'
 
@@ -16,7 +16,9 @@ export default function AdminBlogsPage() {
   const fileInputRef = useRef(null)
   const [adminToken, setAdminToken] = useState('')
   const [editor, setEditor] = useState(null)
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [editingBlog, setEditingBlog] = useState(null)
   const [selectedImage, setSelectedImage] = useState(null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -33,6 +35,14 @@ export default function AdminBlogsPage() {
   const [deleteFeedback, setDeleteFeedback] = useState(null)
   const [pendingDeleteBlog, setPendingDeleteBlog] = useState(null)
   const [deleteToken, setDeleteToken] = useState('')
+
+  function handleEditorReady(nextEditor, destroyedEditor) {
+    if (nextEditor) {
+      setEditor(nextEditor)
+    } else {
+      setEditor(currentEditor => currentEditor === destroyedEditor ? null : currentEditor)
+    }
+  }
 
   useEffect(() => {
     if (!selectedImage) return undefined
@@ -69,13 +79,15 @@ export default function AdminBlogsPage() {
       setFeedback({ type: 'error', message: 'Please wait for the article image to finish uploading.' })
       return
     }
-    if (!editor || editor.isEmpty || !content.trim()) {
+    if (!editor || editor.isEmpty) {
       setFeedback({ type: 'error', message: 'Please write some content before publishing.' })
       return
     }
+    if (!title.trim() || !author.trim()) {
+      setFeedback({ type: 'error', message: 'Enter a blog title and author name before publishing.' })
+      return
+    }
 
-    const form = event.currentTarget
-    const values = new FormData(form)
     setSubmitting(true)
     setShowWakeUpMessage(false)
     setFeedback(null)
@@ -101,21 +113,30 @@ export default function AdminBlogsPage() {
         setUploading(false)
       }
 
-      await createBlog({
-        title: values.get('title'),
-        author: values.get('author'),
+      const blog = {
+        title: title.trim(),
+        author: author.trim(),
         image_url: imageUrl || null,
         content: editor.getHTML(),
-      }, isLocalHost ? '' : adminToken)
-      form.reset()
+      }
+      if (editingBlog) {
+        await updateBlog(editingBlog.id, blog, isLocalHost ? '' : adminToken)
+      } else {
+        await createBlog(blog, isLocalHost ? '' : adminToken)
+      }
       editor.commands.clearContent()
-      setContent('')
+      setTitle('')
+      setAuthor('')
+      setEditingBlog(null)
       setSelectedImage(null)
       setUploadedImageUrl('')
       setUploadProgress(0)
       setUploadFeedback(null)
       setAdminToken('')
-      setFeedback({ type: 'success', message: 'Your blog post has been published.' })
+      setFeedback({
+        type: 'success',
+        message: editingBlog ? 'Your blog post has been updated.' : 'Your blog post has been published.',
+      })
       await refreshBlogs()
     } catch (error) {
       setUploading(false)
@@ -202,6 +223,30 @@ export default function AdminBlogsPage() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  function handleEdit(blog) {
+    setEditingBlog(blog)
+    setTitle(typeof blog.title === 'string' ? blog.title : '')
+    setAuthor(typeof blog.author === 'string' ? blog.author : '')
+    setSelectedImage(null)
+    setUploadedImageUrl(blog.image_url || blog.imageUrl || blog.image || '')
+    setUploadProgress(0)
+    setUploadFeedback(null)
+    setFeedback(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function handleCancelEdit() {
+    setEditingBlog(null)
+    setTitle('')
+    setAuthor('')
+    setSelectedImage(null)
+    setUploadedImageUrl('')
+    setUploadProgress(0)
+    setUploadFeedback(null)
+    setFeedback(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   function handleDelete(blog) {
     setPendingDeleteBlog(blog)
     setDeleteToken(adminToken)
@@ -231,7 +276,7 @@ export default function AdminBlogsPage() {
       <div className="admin-blog-panel">
         <header className="admin-blog-heading">
           <p className="blog-eyebrow">Manovichar Journal</p>
-          <h1>Publish a story</h1>
+          <h1>{editingBlog ? 'Edit your story' : 'Publish a story'}</h1>
           <p>Share a thoughtful resource with the Manovichar community.</p>
         </header>
 
@@ -252,12 +297,28 @@ export default function AdminBlogsPage() {
 
           <label className="admin-blog-field">
             Blog title
-            <input type="text" name="title" autoComplete="off" maxLength="200" required />
+            <input
+              type="text"
+              name="title"
+              autoComplete="off"
+              maxLength="200"
+              required
+              value={title}
+              onChange={event => setTitle(event.target.value)}
+            />
           </label>
 
           <label className="admin-blog-field">
             Author name
-            <input type="text" name="author" autoComplete="name" maxLength="120" required />
+            <input
+              type="text"
+              name="author"
+              autoComplete="name"
+              maxLength="120"
+              required
+              value={author}
+              onChange={event => setAuthor(event.target.value)}
+            />
           </label>
 
           <section className="admin-image-field" aria-labelledby="admin-image-title">
@@ -293,13 +354,33 @@ export default function AdminBlogsPage() {
                   Remove image
                 </button>
               )}
+              {uploadedImageUrl && !selectedImage && (
+                <span className="admin-blog-hint">Current image is saved. Choose a new image to replace it.</span>
+              )}
+              {uploadedImageUrl && !selectedImage && (
+                <button
+                  className="admin-image-remove"
+                  type="button"
+                  onClick={handleRemoveImage}
+                  disabled={uploading}
+                >
+                  Remove image
+                </button>
+              )}
             </div>
-            {selectedImage && (
+            {(selectedImage || uploadedImageUrl) && (
               <div className="admin-image-preview">
-                <img src={selectedImage.previewUrl} alt="Preview of the selected blog image" />
+                <img
+                  src={selectedImage?.previewUrl || uploadedImageUrl}
+                  alt={selectedImage ? 'Preview of the selected blog image' : 'Current blog image'}
+                />
                 <div className="admin-image-preview__details">
-                  <span>{selectedImage.file.name}</span>
-                  <span>{(selectedImage.file.size / (1024 * 1024)).toFixed(1)} MB</span>
+                  {selectedImage
+                    ? <>
+                      <span>{selectedImage.file.name}</span>
+                      <span>{(selectedImage.file.size / (1024 * 1024)).toFixed(1)} MB</span>
+                    </>
+                    : <span>Current published image</span>}
                 </div>
               </div>
             )}
@@ -331,9 +412,10 @@ export default function AdminBlogsPage() {
           <div className="admin-blog-field">
             <span>Content</span>
             <RichTextEditor
-              onEditorReady={setEditor}
-              onContentChange={setContent}
+              key={editingBlog?.id || 'new-blog'}
+              onEditorReady={handleEditorReady}
               onImageUpload={handleContentImageUpload}
+              initialContent={editingBlog ? editingBlog.content || '' : ''}
             />
             <span className="admin-blog-hint">Format your article using the toolbar above.</span>
           </div>
@@ -344,13 +426,25 @@ export default function AdminBlogsPage() {
             </p>
           )}
 
-          <button type="submit" disabled={submitting || uploading || contentImageUploading}>
-            {submitting
-              ? uploading
-                ? `Uploading image… ${uploadProgress}%`
-                : showWakeUpMessage ? 'Waking up server and publishing…' : 'Publishing…'
-              : 'Publish blog post'}
-          </button>
+          <div className="admin-blog-submit-actions">
+            {editingBlog && (
+              <button
+                type="button"
+                className="admin-blog-cancel-edit"
+                onClick={handleCancelEdit}
+                disabled={submitting}
+              >
+                Cancel editing
+              </button>
+            )}
+            <button type="submit" disabled={submitting || uploading || contentImageUploading}>
+              {submitting
+                ? uploading
+                  ? `Uploading image… ${uploadProgress}%`
+                  : showWakeUpMessage ? 'Waking up server and publishing…' : 'Publishing…'
+                : editingBlog ? 'Save blog changes' : 'Publish blog post'}
+            </button>
+          </div>
         </form>
 
         <section className="admin-blog-list" aria-labelledby="admin-blog-list-title">
@@ -368,14 +462,19 @@ export default function AdminBlogsPage() {
               {blogs.map(blog => (
                 <li key={blog.id} className="admin-blog-list__item">
                   <span>{blog.title || 'Untitled'}</span>
-                  <button
-                    className="admin-blog-delete"
-                    type="button"
-                    disabled={deletingId !== null}
-                    onClick={() => handleDelete(blog)}
-                  >
-                    Delete
-                  </button>
+                  <div className="admin-blog-list__actions">
+                    <button className="admin-blog-edit" type="button" onClick={() => handleEdit(blog)}>
+                      Edit
+                    </button>
+                    <button
+                      className="admin-blog-delete"
+                      type="button"
+                      disabled={deletingId !== null}
+                      onClick={() => handleDelete(blog)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

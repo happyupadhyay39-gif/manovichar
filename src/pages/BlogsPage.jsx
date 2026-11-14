@@ -4,9 +4,25 @@ import { fetchBlogs } from '../api/blogs'
 import './BlogPages.css'
 
 const BLOG_CONTENT_TAGS = [
-  'a', 'blockquote', 'br', 'em', 'h1', 'h2', 'h3', 'img', 'li', 'ol', 'p', 'strong', 'u', 'ul',
+  'a', 'blockquote', 'br', 'em', 'figure', 'h1', 'h2', 'h3', 'img', 'li', 'ol', 'p', 'strong', 'u', 'ul',
 ]
-const BLOG_CONTENT_ATTRIBUTES = ['alt', 'href', 'rel', 'src', 'style', 'target', 'title']
+const BLOG_CONTENT_ATTRIBUTES = [
+  'alt',
+  'data-blog-image',
+  'data-image-crop',
+  'data-image-layout',
+  'data-image-position-x',
+  'data-image-position-y',
+  'data-image-zoom',
+  'height',
+  'href',
+  'rel',
+  'src',
+  'style',
+  'target',
+  'title',
+  'width',
+]
 
 function getText(value) {
   return typeof value === 'string' ? value : ''
